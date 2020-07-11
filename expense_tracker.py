@@ -5,6 +5,10 @@ import PySimpleGUI as sg
 from datetime import date as dt
 from datetime import timedelta
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from connection import database_connection
+from analytics import dashboard
+import matplotlib
+matplotlib.use('TkAgg')
 
 """ This is an expense tracker app, the app can provide insight into your monthly spending based on your set budget
     let you see where your money is going. it also has a dashboard. This app was developed using PySimpleGUI
@@ -15,19 +19,18 @@ sg.theme('BlueMono')  #This wil be the app color
 date = dt.today() + timedelta(days=3) #this was included for testing purpose 
 date = date.strftime("%Y-%m-%d") #get date 
 
+def draw_figure(canvas, figure):
+    figure_canvas_agg = FigureCanvasTkAgg(figure, canvas)
+    figure_canvas_agg.draw()
+    figure_canvas_agg.get_tk_widget().pack(side='top', fill='both', expand=1)
+    return figure_canvas_agg
 
-#create database connection where user and expense data will reside
 
-def database_connection(db_file):
+def delete_figure_agg(figure_agg):
+    figure_agg.get_tk_widget().forget()
+    plt.close('all')
 
-    conn = None
 
-    try:
-        conn = sq.connect(db_file)
-    except Error as e:
-        print(e)
-
-    return conn
 
 def create_table(conn, create_table):       #this function will be used to create the table
 
@@ -168,6 +171,8 @@ signup_active = False
 signin_active = False
 
 login_active = False
+
+insight_active = False
 
 while True:
     event, value = window.Read()
@@ -327,7 +332,40 @@ while True:
                         user_window['-type-'].Update('')
                         user_window['-category-'].Update('')
                         user_window['-amount-'].Update('')
-                    
+                    elif event == 'Get Insight' and not insight_active:
+                        user_window.Hide()
+                        insight_active = True
 
+                        insight_layout =[
+                                         [sg.InputText(key='-from-'),sg.CalendarButton('From',target='-from-', format='%Y-%m-%d'), sg.InputText(key ='-to-'), sg.CalendarButton('To',target='-to-', format='%Y-%m-%d'), sg.Button('Submit')],
+                                         [sg.InputText(default_text=userid, visible=False, key='userid')],
+                                         [sg.Canvas(key ='-CANVAS-')],
+                                         [sg.Button('Exit')]
+                                        ]
+
+                        insight_window = sg.Window('Dashboard', insight_layout)
+
+                        canvas_element = insight_window['-CANVAS-']
+                        figure_agg = None
+
+                        while True:
+
+                            event, values = insight_window.Read()
+
+                            if event in (None, 'Exit'):
+                                insight_window.Close()
+                                insight_active = False
+                                window.UnHide()
+                                break
+                            
+                            elif event == 'Submit':
+                                #delete_figure_agg(figure_agg)
+                                userid = values['userid']
+                                date_from = values['-from-']
+                                date_to = values['-to-']
+
+                                user_dashboard= dashboard(date_from, date_to,userid)
+
+                                figure_agg = draw_figure(insight_window['-CANVAS-'].TKCanvas, user_dashboard)               
 window.close()
 
