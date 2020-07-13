@@ -5,12 +5,12 @@ import matplotlib
 
 
 def dashboard(date_from, date_to, userid):
-    gs = gridspec.GridSpec(2, 2)
+    gs=gridspec.GridSpec(3, 3)
 
     fig = plt.figure(figsize=(10,8))
     ax1 = fig.add_subplot(gs[0, 0])
-    ax2 = fig.add_subplot(gs[0,1])
-    ax3 = fig.add_subplot(gs[1:])
+    ax2 = fig.add_subplot(gs[0,2])
+    ax3 = fig.add_subplot(gs[1,:])
 
     type_label =[]
     type_num = []
@@ -42,7 +42,7 @@ def dashboard(date_from, date_to, userid):
     ax1.set_ylabel('Amount')
 
     #See catgories i pie chart by percentage
-    c.execute("SELECT category, COUNT(*) from Expenses where Date(date) between ? and ? and userid=? GROUP BY category", (date_from, date_to,userid))
+    c.execute("SELECT category, COUNT(*) from Expenses where Date(date) between ? and ? and userid=? and income_expense='Expense'  GROUP BY category", (date_from, date_to,userid))
 
     cat_values = c.fetchall()
 
@@ -55,7 +55,7 @@ def dashboard(date_from, date_to, userid):
 
     ax2.pie(cat_num, labels=cat_label, autopct='%1.1f%%')
 
-    c.execute("SELECT category, SUM(amount) from Expenses where Date(date) between ? and ? and userid=? GROUP BY category", (date_from, date_to,userid))
+    c.execute("SELECT category, SUM(amount) from Expenses where Date(date) between ? and ? and userid=? and income_expense='Expense' GROUP BY category", (date_from, date_to,userid))
 
     cat_amount_values = c.fetchall()
 

@@ -16,7 +16,7 @@ matplotlib.use('TkAgg')
 
 #sg.preview_all_look_and_feel_themes()
 sg.theme('BlueMono')  #This wil be the app color
-date = dt.today() + timedelta(days=3) #this was included for testing purpose 
+date = dt.today() + timedelta(days=4) #this was included for testing purpose 
 date = date.strftime("%Y-%m-%d") #get date 
 
 def draw_figure(canvas, figure):
@@ -279,6 +279,10 @@ while True:
 
                 if len(username_id) < 1:
                     sg.popup('User does not exist, create an account')
+                    signin_window.Close()
+                    signin_active = False
+                    window.UnHide()
+                    break
                 else:
                     user = username_id[0]
                     userid = user[0]
@@ -346,7 +350,6 @@ while True:
                         insight_window = sg.Window('Dashboard', insight_layout)
 
                         canvas_element = insight_window['-CANVAS-']
-                        #figure_agg = None
 
                         while True:
 
@@ -359,7 +362,6 @@ while True:
                                 break
                             
                             elif event == 'Submit':
-                                #delete_figure_agg(insight_window['-CANVAS-'].TKCanvas)
                                 userid = values['userid']
                                 date_from = values['-from-']
                                 date_to = values['-to-']
