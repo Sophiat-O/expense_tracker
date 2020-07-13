@@ -26,7 +26,7 @@ def dashboard(date_from, date_to, userid):
     database = "expense_tracker.db"
     conn = database_connection(database)
     c = conn.cursor()
-    c.execute("SELECT income_expense, SUM(amount) from Expenses where date >= ? and date <= ? and id=? GROUP BY income_expense", (date_from, date_to,userid))
+    c.execute("SELECT income_expense, SUM(amount) from Expenses where Date(date) between ? and ? and userid=? GROUP BY income_expense", (date_from, date_to,userid))
 
     type_values = c.fetchall()
 
@@ -42,7 +42,7 @@ def dashboard(date_from, date_to, userid):
     ax1.set_ylabel('Amount')
 
     #See catgories i pie chart by percentage
-    c.execute("SELECT category, COUNT(*) from Expenses where date >= ? and date <= ? and id=? GROUP BY category", (date_from, date_to,userid))
+    c.execute("SELECT category, COUNT(*) from Expenses where Date(date) between ? and ? and userid=? GROUP BY category", (date_from, date_to,userid))
 
     cat_values = c.fetchall()
 
@@ -55,7 +55,7 @@ def dashboard(date_from, date_to, userid):
 
     ax2.pie(cat_num, labels=cat_label, autopct='%1.1f%%')
 
-    c.execute("SELECT category, SUM(amount) from Expenses where date >= ? and date <= ? and id=? GROUP BY category", (date_from, date_to,userid))
+    c.execute("SELECT category, SUM(amount) from Expenses where Date(date) between ? and ? and userid=? GROUP BY category", (date_from, date_to,userid))
 
     cat_amount_values = c.fetchall()
 
@@ -69,6 +69,8 @@ def dashboard(date_from, date_to, userid):
     ax3.bar(cat_amount_label, cat_amount_num)
     ax3.set_xlabel('Category')
     ax3.set_ylabel('Amount')
+
+    fig.tight_layout()
 
     return fig
 

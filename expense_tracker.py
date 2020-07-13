@@ -103,7 +103,7 @@ def new_expense(conn, create_expense):  #expense record for each user
     try:
         c = conn.cursor()
         sql = ''' INSERT INTO Expenses(userid, category, income_expense,amount, date)
-                  VALUES(?,?,?,?,?)'''
+                  VALUES(?,?,?,?,Date(?))'''
         c.execute(sql,create_expense)
 
     except Error as e:
@@ -124,7 +124,7 @@ def new_log(conn, create_new_log):  #log table to track logged in user
     try:
         c = conn.cursor()
         sql = ''' INSERT INTO UserLog(userid,date)
-                  VALUES(?,?)
+                  VALUES(?,Date(?))
              '''
         c.execute(sql,create_new_log)
 
@@ -346,7 +346,7 @@ while True:
                         insight_window = sg.Window('Dashboard', insight_layout)
 
                         canvas_element = insight_window['-CANVAS-']
-                        figure_agg = None
+                        #figure_agg = None
 
                         while True:
 
@@ -359,7 +359,7 @@ while True:
                                 break
                             
                             elif event == 'Submit':
-                                #delete_figure_agg(figure_agg)
+                                #delete_figure_agg(insight_window['-CANVAS-'].TKCanvas)
                                 userid = values['userid']
                                 date_from = values['-from-']
                                 date_to = values['-to-']
